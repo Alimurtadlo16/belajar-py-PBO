@@ -60,8 +60,6 @@ class DatabaseSQLite(KoneksiDatabase):
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
 class Pengguna(ABC):
-    """Kelas Induk (Parent-Class) untuk seluruh entitas pengguna."""
-
     def __init__(self, nama_lengkap, username):
         self._namaLengkap = nama_lengkap
         self._username = username
@@ -99,7 +97,7 @@ class Mahasiswa(Pengguna):
     def cek_status_izin(self, db):
         query = "SELECT idIzin, tujuan, alasan, waktuKeluar, waktuKembali, statusIzin FROM tbPerizinan WHERE nim = ?"
         data = db.ambil_data(query, (self.__nim,))
-        print("\n--- RIWAYAT & STATUS PERIZINAN SAYA ---")
+        print("\n--- RIWAYAT & STATUS PERIZINAN YANG SAYA AJUKAN ---")
         if not data:
             print("Belum ada riwayat perizinan.")
         for row in data:
@@ -107,7 +105,7 @@ class Mahasiswa(Pengguna):
 
     def proses_perintah_cli(self, db):
         while True:
-            print(f"\n=== MENU CLI MAHASISWA ({self._namaLengkap}) ===")
+            print(f"\n=== MENU MAHASISWA ({self._namaLengkap}) ===")
             print("1. Ajukan Perizinan Keluar Kampus (#IZIN)")
             print("2. Cek Status Izin Saya")
             print("3. Logout / Keluar")
@@ -126,7 +124,6 @@ class Mahasiswa(Pengguna):
 
 
 class StaffDirektoratKepesantrenan(Pengguna):
-
     def __init__(self, id_staff, nama_lengkap, bagian):
         super().__init__(nama_lengkap, id_staff)
         self.idStaff = id_staff
@@ -146,7 +143,7 @@ class StaffDirektoratKepesantrenan(Pengguna):
         print(f"\n[INFO] Perizinan ID {id_izin} berhasil diubah statusnya menjadi: {keputusan}")
     def proses_perintah_cli(self, db):
         while True:
-            print(f"\n=== DASBOR PUSAT STAF KEPESANTRENAN ({self._namaLengkap}) ===")
+            print(f"\n=== DASHBOARD PUSAT STAF DIREKTORAT KEPESANTRENAN ({self._namaLengkap}) ===")
             print("1. Lihat Daftar Pengajuan Izin Mahasiswa")
             print("2. Otorisasi Izin (#SETUJU / #TOLAK)")
             print("3. Logout / Keluar")
@@ -154,7 +151,7 @@ class StaffDirektoratKepesantrenan(Pengguna):
 
             if pilihan == '1':
                 data = self.lihat_semua_izin(db)
-                print("\n--- DAFTAR PERIZINAN MASUK ---")
+                print("\n--- DAFTAR PERIZINAN MASUK DARI MAHASISWA ---")
                 if not data:
                     print("Belum ada pengajuan perizinan.")
                 for row in data:
@@ -171,8 +168,6 @@ class StaffDirektoratKepesantrenan(Pengguna):
 
 
 class SatpamGerbangKampus(Pengguna):
-    """Sub-kelas Satpam / Keamanan Gerbang Kampus."""
-
     def __init__(self, no_pos, nama_petugas):
         super().__init__(nama_petugas, no_pos)
         self.noPosPenjaga = no_pos
@@ -194,7 +189,7 @@ class SatpamGerbangKampus(Pengguna):
 
     def proses_perintah_cli(self, db):
         while True:
-            print(f"\n=== MONITOR POS GERBANG UTAMA (Pos {self.noPosPenjaga}) ===")
+            print(f"\n=== MONITOR DARI POS SATPAM GERBANG UTAMA (Pos {self.noPosPenjaga}) ===")
             print("1. Lihat Daftar Mahasiswa Berizin Aktif ('Disetujui')")
             print("2. Catat Mahasiswa Kembali ke Kampus")
             print("3. Logout / Keluar")
@@ -202,7 +197,7 @@ class SatpamGerbangKampus(Pengguna):
 
             if pilihan == '1':
                 data = self.validasi_akses_gerbang(db)
-                print("\n--- DAFTAR MAHASISWA DIIZINKAN KELUAR ---")
+                print("\n--- DAFTAR MAHASISWA YANG TELAH DIIZINKAN KELUAR ---")
                 if not data:
                     print("Tidak ada data mahasiswa dengan izin aktif.")
                 for row in data:
@@ -218,26 +213,25 @@ def inisialisasi_data_dummy(db):
     cek = db.ambil_data("SELECT COUNT(*) FROM tbMahasiswa")
     if cek[0][0] == 0:
         db.eksekusi_query("INSERT INTO tbMahasiswa VALUES (?, ?, ?, ?, ?)",
-                           ("462025611007", "Ahmad Ali Murtadlo Asadillah", 4, "Teknik Informatika", "password123"))
+                           ("462025611007", "Ahmad Ali Murtadlo Asadillah", 4, "Teknik Informatika", "123"))
         db.eksekusi_query("INSERT INTO tbMahasiswa VALUES (?, ?, ?, ?, ?)",
-                           ("462025611999", "Fulan bin Fulan", 2, "Teknik Informatika", "password456"))
+                           ("462025611999", "Fulan bin Fulan", 2, "Teknik Informatika", "456"))
 
 def main():
     db = DatabaseSQLite()
     inisialisasi_data_dummy(db)
 
-    staff_pusat = StaffDirektoratKepesantrenan("STF001", "Ustadz Ahmad", "Bagian Pengasuhan")
+    staff_pusat = StaffDirektoratKepesantrenan("STF001", "Ustadz Ahmad bin Fulan", "Bagian Direktorat Kepesantrenan")
     satpam_pos1 = SatpamGerbangKampus("POS-01", "Komandan Satpam")
 
     while True:
         print("\n========================================================")
-        print("   SISTEM E-PERIZINAN KELUAR KAMPUS DIGITAL (CLI) UNIDA")
+        print("   SISTEM E-PERIZINAN KELUAR KAMPUS DIGITAL UNIDA")
         print("========================================================")
         print("1. Login sebagai Mahasiswa")
         print("2. Login sebagai Staff Direktorat Kepesantrenan")
         print("3. Login sebagai Satpam Pos Gerbang")
         print("4. Keluar Aplikasi")
-
         role = input("Pilih hak akses login (1-4): ")
 
         if role == '1':
@@ -270,7 +264,5 @@ def main():
             break
         else:
             print("Pilihan menu tidak valid, silakan coba lagi.")
-
-
 if __name__ == "__main__":
     main()
