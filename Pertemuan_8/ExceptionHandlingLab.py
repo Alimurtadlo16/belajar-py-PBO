@@ -14,20 +14,18 @@ class SetoranNegatifEror(Exception):
         super().__init__(self.pesan)
 
 class AkunTerblokirEror(Exception):
-    """FITUR BARU: Exception jika salah memasukkan password/PIN sebanyak 3 kali"""
     def __init__(self, pesan="AKUN ANDA TERBLOKIR! Anda telah salah memasukkan PIN sebanyak 3 kali."):
         self.pesan = pesan
         super().__init__(self.pesan)
 
 class RekeningBank:
-    def __init__(self, pemilik, saldoAwal, pinAwal="000000"):
+    def __init__(self, pemilik, saldoAwal, pinAwal="123456"):
         self.pemilik = pemilik
         self.saldo = saldoAwal
         self.pin = pinAwal
         self.saldoMinimal = 50000
 
     def verifikasiPIN(self):
-        """FITUR BARU: Memvalidasi password/PIN sebelum masuk ke menu"""
         kesempatan = 3
         while kesempatan > 0:
             input_pin = input(f"Masukkan PIN ATM Anda {kesempatan}): ")
@@ -47,7 +45,6 @@ class RekeningBank:
         print(f"==========================")
 
     def hubungiCallCenter(self):
-        """FITUR BARU: Menu khusus untuk menghubungi call center"""
         print(f"\n=============================================")
         print(f"          CALL CENTER BANK BRI           ")
         print(f"=============================================")
@@ -66,7 +63,7 @@ class RekeningBank:
         print(f"\n--- Memproses Setor Tunai: Rp{jumlah:,} ---")
         if jumlah <= 0:
             raise SetoranNegatifEror()
-        
+
         self.saldo += jumlah
         print(f"Selamat! Setoran Rp{jumlah:,} berhasil dilakukan.")
         print(f"Saldo terbaru Anda: Rp{self.saldo:,}")
@@ -75,20 +72,19 @@ class RekeningBank:
         print(f"\n--- Memproses Penarikan: Rp{jumlah:,} ---")
         if jumlah <= 0:
             raise PenarikanNegatifEror()
-            
+
         if self.saldo - jumlah < self.saldoMinimal:
             raise SaldoMinimalEror(
                 f"Penarikan gagal! Saldo Anda Rp{self.saldo:,}.\n"
                 f"Jika ditarik Rp{jumlah:,}, sisa saldo Anda (Rp{self.saldo - jumlah:,}) "
                 f"akan melewati batas minimal Rp{self.saldoMinimal:,}."
             )
-            
+
         self.saldo -= jumlah
         print(f"Transaksi Anda berhasil! Penarikan Rp{jumlah:,} telah dilakukan.")
         print(f"Sisa saldo Anda sekarang: Rp{self.saldo:,}")
 
 if __name__ == "__main__":
-# Ganti parameter ketiga dengan PIN yang Anda inginkan
     akunNama = RekeningBank("Ali Murtadlo", 50000000000, "000000")
     print("=== SELAMAT DATANG DI ATM BANK REKENING ===")
     try:
@@ -99,7 +95,7 @@ if __name__ == "__main__":
             print("2. Setor Tunai")
             print("3. Tarik Tunai")
             print("4. Hubungi Call Center")
-            print("5. Keluar")        
+            print("5. Keluar")
             pilihan = input("Pilih menu (1-5): ")
             if pilihan == "1":
                 akunNama.cekSaldo()
